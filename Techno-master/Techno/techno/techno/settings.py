@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'webapp',
+    'webapp.apps.WebappConfig',
     'corsheaders',
     'import_export',
 ]
@@ -90,7 +90,7 @@ WSGI_APPLICATION = 'techno.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'final_db2',
+        'NAME': 'final_db3',
         'USER': 'root',
         'PASSWORD': 'A754557CS--9',
         'HOST': 'localhost',  # or the hostname where your MySQL server is running

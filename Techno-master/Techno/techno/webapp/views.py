@@ -276,22 +276,31 @@ def breakdown_view(request):
 
 
 
+
+
+
 def calculate_tool_efficiency(tool_code):
     try:
+        
         tool = Tool.objects.get(tool_code=tool_code)
-        max_length = tool.max_length
-        length_cut = tool.length_cut
+        max_life_expectancy_in_mm = tool.max_life_expectancy_in_mm
+        length_cut_so_far = tool.length_cut_so_far
         no_of_brk_points = tool.no_of_brk_points
-        tool_efficiency=tool.tool_efficiency
 
-        if max_length > 0 and no_of_brk_points >= 0:
-            efficiency = (length_cut / ((no_of_brk_points + 1) * max_length))*100
-            efficiency=(100-efficiency)/2                           #make an edit here
-            return round(efficiency, 2)
+        if max_life_expectancy_in_mm> 0 and no_of_brk_points >= 0:
+
+            tool_life_lost = (no_of_brk_points + 1) * max_life_expectancy_in_mm
+            
+            efficiency = (length_cut_so_far / (length_cut_so_far + tool_life_lost)) * 100
+            
+            efficiency = round(efficiency, 2)
+            
+            return efficiency
     except Tool.DoesNotExist:
         pass
-
+    
     return None
+
 
 def tool_efficiency_view(request):
     efficiency = None

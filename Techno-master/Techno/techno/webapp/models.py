@@ -1,4 +1,13 @@
 from django.db import models
+from django.apps import AppConfig
+
+class WebappConfig(AppConfig):
+    default_auto_field='django.db.models.BigAutoField'
+    name='webapp'
+
+    def ready(self):
+        import webapp.signals
+
 
 class Employee2(models.Model):
     emp_ssn = models.CharField(primary_key=True, max_length=100)
@@ -9,7 +18,7 @@ class Employee2(models.Model):
     emp_efficiency = models.FloatField(default=0.0)
     
     def __str__(self):
-        return f"Details Of {self.emp_ssn}"
+        return f"{self.emp_ssn}"
 
 class Tool(models.Model):
     tool_code = models.CharField(primary_key=True, max_length=100)
@@ -20,7 +29,8 @@ class Tool(models.Model):
     no_of_brk_points = models.IntegerField(default=None, null=True)
     tool_efficiency = models.FloatField(default=None, null=True)
 
-
+    def __self__(self):
+        return f"{self.tool_code}"
 
 class Job(models.Model):
     part_no= models.CharField(primary_key=True, max_length=100)  
@@ -35,7 +45,7 @@ class Job(models.Model):
         unique_together=('part_no', 'tool_code')
 
     def __str__(self):
-        return f"Job: {self.component_name} (ID: {self.part_no}, Tool Code: {self.tool_code})"
+        return f"{self.part_no}"
 
 class Machine(models.Model):
     machine_id = models.IntegerField(primary_key=True)
@@ -47,7 +57,7 @@ class Machine(models.Model):
         unique_together = ('machine_id', 'tool_code')
 
     def __str__(self):
-        return f"Machine: {self.machine_name} (ID: {self.machine_id})"
+        return f"{self.machine_name}"
 
 class Performs(models.Model):
     date = models.DateField(primary_key=True)
@@ -86,3 +96,11 @@ class Breakdown(models.Model):
 
     def __str__(self):
         return f"Breakdown on {self.date} for Tool: {self.tool_code.tool_code} on Machine: {self.machine_id.machine_name}"
+    
+
+
+
+
+
+
+
