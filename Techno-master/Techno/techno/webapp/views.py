@@ -1,6 +1,6 @@
 from math import sumprod
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import EmployeeForm, ToolForm, JobForm, MachineForm,EmployeeSSNForm,ShiftSSNForm,ToolCodeForm,EmployeeSSNDateForm,ShiftSSNDateForm
+from .forms import EmployeeForm, ToolForm, JobForm, MachineForm,EmployeeSSNForm,ShiftSSNForm,ToolCodeForm,EmployeeSSNDateForm,ShiftSSNDateForm,PerformForm
 from .models import Employee2, Performs, Tool, Job, Machine,Breakdown
 from rest_framework import generics
 from .serializers import EmployeeSerializer
@@ -11,13 +11,13 @@ from django.views import View
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.db.models import Sum
-
+import logging
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import Sum
 from .models import Performs
 
-
+logger=logging.getLogger(__name__)
 
 
 def get_csrf_token(request):
@@ -49,7 +49,26 @@ class EmployeeList(generics.ListAPIView):
     serializer_class = EmployeeSerializer
 
 
+
+def create_perform_view(request):
+    if request.method == 'POST':
+        form = PerformForm(request.POST)
+        if form.is_valid():
+            
+            performs_instance=form.save()
+            performs_instance.save()
+            return redirect('/webapp/success_page/')
+
+    else:
+        form = PerformForm()
+    
+    return render(request, 'webapp/performs_create.html', {'form': form})
+
+   
+
+
 def employee_create_view(request):
+    print("from employee create view")
     if request.method == 'POST':
         form = EmployeeForm(request.POST)
         if form.is_valid():
@@ -93,13 +112,13 @@ def job_create_view(request):
 
             tool = get_object_or_404(Tool, tool_code=tool_code)
 
-            # Create the Job instance with the Tool reference and save it
+            
             job = Job.objects.create(job_id=job_id, job_name=job_name, length=length, no_of_holes=no_of_holes, tool_code=tool)
             job.save()
 
-        return redirect('success_page')  # Replace 'success_page' with the actual URL or view name
+        return redirect('success_page')  
     else:
-        # Retrieve tools for displaying in the form
+        
         tools = Tool.objects.all()
 
     return render(request, 'webapp/job_form.html', {'tools': tools})
@@ -111,9 +130,9 @@ def create_machine(request):
         if form.is_valid():
             machine = form.save(commit=False)
             machine.save()
-            form.save_m2m()  # Save the many-to-many relationships
+            form.save_m2m()  
 
-            return redirect('success_page')  # Replace 'success_page' with the actual URL or view name
+            return redirect('success_page')  
     else:
         form = MachineForm()
 
@@ -123,7 +142,9 @@ def create_machine(request):
 
 
 def employee_delete_view(request, emp_ssn):
+    print("126")
     employee = get_object_or_404(Employee2, emp_ssn=emp_ssn)
+    print("128")
 
     if request.method == 'POST':
         employee.delete()
@@ -199,7 +220,9 @@ def success_page(request):
 
 
 
-def calculate_employee_efficiency(emp_ssn):
+def calculate_employee_efficiency(request):
+    emp_ssn="SH20"
+    print(emp_ssn)
     performs_aggregated = Performs.objects.filter(emp_ssn=emp_ssn).aggregate(
         shift_duration_sum=Sum('shift_duration'),
         partial_shift_sum=Sum('partial_shift'),
@@ -216,13 +239,15 @@ def calculate_employee_efficiency(emp_ssn):
         x = target_sum * (partial_shift_sum / shift_duration_sum)
         efficiency = (achieved_sum / x)*100
         efficiency=round(efficiency,2)
-        return efficiency
+        print(efficiency)
+        return render(request, 'webapp/success_page.html')
     else:
-        return None
+        print("else block")
+        return render(request, 'webapp/success_page.html')
 
 def employee_efficiency_view(request):
     efficiency = None
-
+    print("Hello World")
     if request.method == 'POST':
         form = EmployeeSSNForm(request.POST)
         if form.is_valid():

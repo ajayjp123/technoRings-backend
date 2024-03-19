@@ -1,5 +1,5 @@
 from django import forms
-from .models import Employee2, Tool, Job, Machine
+from .models import Employee2, Tool, Job, Machine,Performs
 
 
 class EmployeeForm(forms.ModelForm):
@@ -9,6 +9,10 @@ class EmployeeForm(forms.ModelForm):
         exclude=['emp_efficiency']
 
 
+class PerformForm(forms.ModelForm):
+    class Meta:
+        model=Performs
+        fields='__all__'
 
 class EmployeeSSNForm(forms.Form):
     emp_ssn = forms.CharField(label='Employee SSN', max_length=20)

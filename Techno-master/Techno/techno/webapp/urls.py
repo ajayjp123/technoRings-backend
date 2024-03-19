@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import employee_create_view, tool_create_view, success_page, job_create_view, employee_delete_view, \
     tool_delete_view, job_delete_view, employee_update_view, tool_update_view, job_update_view, create_machine, \
-    EmployeeCreateView, get_csrf_token,calculate_employee_efficiency,employee_efficiency_view,shift_efficiency_view,breakdown_view,tool_efficiency_view,employee_efficiency_view_date,shift_efficiency_view_date
+    EmployeeCreateView, get_csrf_token,calculate_employee_efficiency,employee_efficiency_view,shift_efficiency_view,breakdown_view,tool_efficiency_view,employee_efficiency_view_date,shift_efficiency_view_date,create_perform_view
 from .views1 import get_tool_names
 from .views import EmployeeList
 urlpatterns = [
@@ -11,6 +11,9 @@ urlpatterns = [
     path('success_page/', success_page, name='success_page'),
     path('create_machine/', create_machine, name='create_machine'),
     path('get_tool_names/', get_tool_names, name='get_tool_names'),
+    path('calcEff/',calculate_employee_efficiency,name='calcEff'),
+    path('performs_create/',create_perform_view,name='performs_create'),
+    
     
 
     path('api/employees/', EmployeeList.as_view(), name='employee-list'),
