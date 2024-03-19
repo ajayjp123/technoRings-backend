@@ -17,7 +17,7 @@ from django.http import HttpResponse
 from django.db.models import Sum
 from .models import Performs
 
-logger=logging.getLogger(__name__)
+
 
 
 def get_csrf_token(request):
@@ -50,19 +50,6 @@ class EmployeeList(generics.ListAPIView):
 
 
 
-def create_perform_view(request):
-    if request.method == 'POST':
-        form = PerformForm(request.POST)
-        if form.is_valid():
-            
-            performs_instance=form.save()
-            performs_instance.save()
-            return redirect('/webapp/success_page/')
-
-    else:
-        form = PerformForm()
-    
-    return render(request, 'webapp/performs_create.html', {'form': form})
 
    
 
@@ -73,8 +60,8 @@ def employee_create_view(request):
         form = EmployeeForm(request.POST)
         if form.is_valid():
             employee_instance=form.save()
-            employee_instance.emp_efficiency=0
             employee_instance.save()
+         
             return redirect('/webapp/success_page/')
     else:
         form = EmployeeForm()
@@ -218,11 +205,31 @@ def job_update_view(request, job_id):
 def success_page(request):
     return render(request, 'webapp/success_page.html')
 
+def create_perform_view(request):
+    print("in create_performs_view")
+    if request.method == 'POST':
+        form = PerformForm(request.POST)
+        if form.is_valid():
+            
+            performs_instance=form.save()
+            performs_instance.save()
+            emp_ssn = form.cleaned_data['emp_ssn']
+            efficiency=calculate_employee_efficiency(emp_ssn)
+            if efficiency is not None:
+                employee = Employee2.objects.filter(emp_ssn=emp_ssn).first()
+                if employee:
+                    employee.emp_efficiency = efficiency
+                    employee.save()
+            return redirect('/webapp/success_page/')
+
+    else:
+        form = PerformForm()
+    
+    return render(request, 'webapp/performs_create.html', {'form': form})
 
 
-def calculate_employee_efficiency(request):
-    emp_ssn="SH20"
-    print(emp_ssn)
+def calculate_employee_efficiency(emp_ssn):
+  
     performs_aggregated = Performs.objects.filter(emp_ssn=emp_ssn).aggregate(
         shift_duration_sum=Sum('shift_duration'),
         partial_shift_sum=Sum('partial_shift'),
@@ -239,11 +246,8 @@ def calculate_employee_efficiency(request):
         x = target_sum * (partial_shift_sum / shift_duration_sum)
         efficiency = (achieved_sum / x)*100
         efficiency=round(efficiency,2)
-        print(efficiency)
-        return render(request, 'webapp/success_page.html')
-    else:
-        print("else block")
-        return render(request, 'webapp/success_page.html')
+        return efficiency
+        
 
 def employee_efficiency_view(request):
     efficiency = None
